@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patent Thicket — The Smartphone</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --border: #1e1e2e;
+    --text: #e8e8f0;
+    --muted: #6060a0;
+    --qualcomm: #e84040;
+    --apple: #a0c8ff;
+    --samsung: #4080ff;
+    --interdigital: #ff8c40;
+    --nokia: #40d080;
+    --dolby: #c040ff;
+    --corning: #f0d060;
+    --knowles: #ff60a0;
+    --cirrus: #60d0d0;
+    --arm: #80ff80;
+    --nxp: #ff9060;
+    --tdk: #c0a0ff;
+    --synaptics: #40e0c0;
+    --caltech: #ffa040;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 20% 30%, rgba(232,64,64,.08) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 50% at 80% 70%, rgba(64,128,255,.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 50% 50%, rgba(192,64,255,.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: .75rem;
+    letter-spacing: .25em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp .8s .2s forwards;
+  }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 14vw, 14rem);
+    line-height: .9;
+    letter-spacing: .02em;
+    background: linear-gradient(135deg, #e8e8f0 0%, #8080c0 60%, #4040a0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    opacity: 0;
+    animation: fadeUp .8s .4s forwards;
+  }
+
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    font-weight: 300;
+    color: var(--muted);
+    max-width: 55ch;
+    line-height: 1.7;
+    margin-top: 2rem;
+    opacity: 0;
+    animation: fadeUp .8s .6s forwards;
+  }
+
+  .hero-sub strong { color: var(--text); font-weight: 600; }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: .7rem;
+    letter-spacing: .2em;
+    color: var(--muted);
+    opacity: 0;
+    animation: fadeUp .8s 1.2s forwards;
+  }
+
+  /* ── SECTION WRAPPER ── */
+  section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 6rem 2rem;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: .7rem;
+    letter-spacing: .25em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    letter-spacing: .03em;
+    margin-bottom: 1.5rem;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0 2rem;
+  }
+
+  /* ── PHONE EXPLORER ── */
+  .explorer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  @media(max-width:768px){
+    .explorer { grid-template-columns: 1fr; }
+  }
+
+  .phone-wrap {
+    position: sticky;
+    top: 8rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .phone-svg-container {
+    position: relative;
+    width: 280px;
+  }
+
+  .phone-svg-container svg {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 0 40px rgba(64,64,160,.3));
+  }
+
+  /* component highlight areas — absolutely positioned over SVG */
+  .phone-region {
+    position: absolute;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background .2s, box-shadow .2s;
+    z-index: 10;
+  }
+  .phone-region:hover, .phone-region.active {
+    background: rgba(255,255,255,.08);
+    box-shadow: 0 0 0 2px currentColor;
+  }
+
+  /* component list on right */
+  .component-list { display: flex; flex-direction: column; gap: 1rem; }
+
+  .comp-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    cursor: pointer;
+    transition: border-color .2s, transform .2s, box-shadow .2s;
+    border-left: 4px solid transparent;
+  }
+
+  .comp-card:hover { transform: translateX(4px); }
+  .comp-card.active {
+    border-left-color: var(--accent-color);
+    box-shadow: -4px 0 20px -4px var(--accent-color);
+  }
+
+  .comp-header {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: .5rem;
+  }
+
+  .comp-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    flex-shrink: 0;
+  }
+
+  .comp-name {
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  .comp-owner {
+    font-family: 'DM Mono', monospace;
+    font-size: .7rem;
+    color: var(--accent-color);
+    letter-spacing: .1em;
+    margin-bottom: .4rem;
+  }
+
+  .comp-patent {
+    font-family: 'DM Mono', monospace;
+    font-size: .68rem;
+    color: var(--muted);
+    margin-bottom: .5rem;
+  }
+
+  .comp-desc {
+    font-size: .85rem;
+    line-height: 1.6;
+    color: #a0a0c0;
+    display: none;
+  }
+
+  .comp-card.active .comp-desc { display: block; }
+
+  /* ── NETWORK DIAGRAM ── */
+  .network-section {
+    text-align: center;
+  }
+
+  #thicket-canvas {
+    display: block;
+    margin: 3rem auto 0;
+    border-radius: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  /* ── WHY IT MATTERS ── */
+  .impact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  .impact-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+  }
+
+  .impact-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.5rem;
+    line-height: 1;
+    margin-bottom: .5rem;
+  }
+
+  .impact-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: .75rem;
+  }
+
+  .impact-card p {
+    font-size: .875rem;
+    color: #8080b0;
+    line-height: 1.65;
+  }
+
+  /* ── LEGEND ── */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2rem;
+    justify-content: center;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: .75rem;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: .75rem;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── TIMELINE ── */
+  .timeline { position:relative; padding-left: 2rem; }
+  .timeline::before {
+    content:''; position:absolute; left:0; top:0; bottom:0;
+    width:2px; background:var(--border);
+  }
+  .tl-item {
+    position:relative; margin-bottom:2.5rem; padding-left:1.5rem;
+    opacity:0; transform:translateX(-12px);
+    transition: opacity .4s, transform .4s;
+  }
+  .tl-item.visible { opacity:1; transform:translateX(0); }
+  .tl-dot {
+    position:absolute; left:-2rem; top:.35rem;
+    width:12px; height:12px; border-radius:50%;
+    border:2px solid; background:var(--bg);
+    transform:translateX(-5px);
+  }
+  .tl-date {
+    font-family:'DM Mono',monospace; font-size:.7rem;
+    letter-spacing:.1em; color:var(--muted); margin-bottom:.3rem;
+  }
+  .tl-title { font-weight:600; font-size:.95rem; margin-bottom:.3rem; }
+  .tl-body  { font-size:.83rem; color:#8080b0; line-height:1.6; }
+  .tl-tag {
+    display:inline-block; font-family:'DM Mono',monospace;
+    font-size:.62rem; letter-spacing:.08em; padding:.15rem .5rem;
+    border-radius:4px; margin-bottom:.4rem;
+  }
+
+  /* ── CONCEPTS ── */
+  .concepts-grid {
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+    gap:1rem;
+  }
+  .concept-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; overflow:hidden; cursor:pointer;
+  }
+  .concept-head {
+    padding:1.2rem 1.5rem; display:flex; align-items:center;
+    justify-content:space-between; gap:1rem;
+  }
+  .concept-term {
+    font-family:'Bebas Neue',sans-serif; font-size:1.4rem;
+    letter-spacing:.04em;
+  }
+  .concept-abbr {
+    font-family:'DM Mono',monospace; font-size:.7rem;
+    color:var(--muted); letter-spacing:.1em;
+  }
+  .concept-chevron { color:var(--muted); transition:transform .2s; font-size:1rem; }
+  .concept-card.open .concept-chevron { transform:rotate(180deg); }
+  .concept-body {
+    max-height:0; overflow:hidden;
+    transition:max-height .35s ease, padding .35s;
+    font-size:.85rem; line-height:1.7; color:#9090b8;
+    padding:0 1.5rem;
+  }
+  .concept-card.open .concept-body { max-height:400px; padding:0 1.5rem 1.2rem; }
+
+  /* ── SOURCES ── */
+  .sources-list { display:flex; flex-direction:column; gap:.75rem; }
+  .source-item {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:10px; padding:1rem 1.5rem;
+    display:grid; grid-template-columns:auto 1fr auto;
+    gap:.5rem 1rem; align-items:start;
+  }
+  .source-num {
+    font-family:'DM Mono',monospace; font-size:.7rem;
+    color:var(--muted); padding-top:.1rem;
+  }
+  .source-title { font-size:.875rem; font-weight:600; margin-bottom:.2rem; }
+  .source-meta  { font-family:'DM Mono',monospace; font-size:.7rem; color:var(--muted); }
+  .source-badge {
+    font-family:'DM Mono',monospace; font-size:.6rem;
+    letter-spacing:.08em; padding:.15rem .45rem; border-radius:4px;
+    background:rgba(64,208,128,.1); color:var(--nokia); border:1px solid rgba(64,208,128,.2);
+    white-space:nowrap; align-self:start;
+  }
+
+  /* ── SITE GUIDE ── */
+  .guide-grid {
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:1.2rem;
+  }
+  .guide-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:1.5rem;
+    transition: border-color .2s, transform .2s;
+  }
+  .guide-card:hover { border-color:#3030a0; transform:translateY(-2px); }
+  .guide-num {
+    font-family:'Bebas Neue',sans-serif; font-size:2.8rem; line-height:1;
+    color:#2a2a5a; margin-bottom:.5rem;
+  }
+  .guide-title { font-weight:600; font-size:.95rem; margin-bottom:.5rem; color:var(--text); }
+  .guide-desc  { font-size:.83rem; color:#8080b0; line-height:1.65; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="hero-label">Intellectual Property Rights Paper — Creative ICE Component</p>
+  <h1>Patent<br>Thicket</h1>
+  <p class="hero-sub">
+    A <strong>patent thicket</strong> occurs when a single product is covered by so many overlapping patents, held by so many different owners, that bringing it to market requires navigating a dense web of licensing negotiations — raising costs, slowing innovation, and creating barriers to entry.
+  </p>
+  <p class="scroll-hint">↓ scroll to explore</p>
+</div>
+
+<div class="divider"></div>
+
+<!-- SITE GUIDE -->
+<section>
+  <p class="section-label">00 — About This Site</p>
+  <h2>How to Navigate</h2>
+  <p style="color:#8080b0;max-width:65ch;line-height:1.7;margin-bottom:3rem;">
+    This site is organized as seven interconnected sections, each building on the last to give a complete picture of what a patent thicket is, how one looks in practice, and why it matters legally and economically. Here is what each section covers.
+  </p>
+  <div class="guide-grid">
+    <div class="guide-card">
+      <div class="guide-num">01</div>
+      <div class="guide-title">Interactive Phone Breakdown</div>
+      <div class="guide-desc">Hover and click any part of the smartphone diagram to reveal which company owns the dominant patents for that physical component — from the cover glass to the charging port. Fifteen components, fourteen distinct IP estates.</div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-num">02</div>
+      <div class="guide-title">The Web of Ownership</div>
+      <div class="guide-desc">A network diagram where each node represents a patent holder and each line represents overlapping IP territory. Red bridges mark cross-company overlaps — the places where a manufacturer must negotiate with multiple parties simultaneously.</div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-num">03</div>
+      <div class="guide-title">Why Patent Thickets Matter</div>
+      <div class="guide-desc">Six data cards covering the economic and legal consequences of patent thickets: cumulative licensing costs, the royalty stacking problem, barriers to new entrants, standard-essential patents, and the role of patent assertion entities.</div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-num">04</div>
+      <div class="guide-title">Patent War Timeline</div>
+      <div class="guide-desc">A scroll-animated chronological record of the Smartphone Patent Wars from Nokia v. Apple (2009) through the 5G SEP disputes of the present day — with full case summaries, verdict outcomes, and settlement amounts where known.</div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-num">05</div>
+      <div class="guide-title">Litigation Map</div>
+      <div class="guide-desc">An interactive canvas diagram showing nine major players as nodes, with arrows representing real lawsuits and countersuits between them. Hover any arrow to read the case details. Bidirectional arrows indicate countersuits.</div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-num">06</div>
+      <div class="guide-title">Key Concepts Glossary</div>
+      <div class="guide-desc">Nine expandable definitions of the core legal and economic terms needed to understand patent thickets: SEPs, FRAND, royalty stacking, patent hold-up, PAEs, patent pools, the ITC, and the distinction between design and utility patents.</div>
+    </div>
+    <div class="guide-card">
+      <div class="guide-num">07</div>
+      <div class="guide-title">Sources & Bibliography</div>
+      <div class="guide-desc">Twenty-three numbered sources — including three primary court opinions cited by official reporter, regulatory filings, peer-reviewed articles, and industry data — with primary sources marked separately for easy reference.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PHONE EXPLORER -->
+<section>
+  <p class="section-label">01 — Interactive Breakdown</p>
+  <h2>One Phone.<br>14 Patent Owners.</h2>
+  <p style="color:#8080b0; max-width:55ch; margin-bottom:3rem; line-height:1.7;">
+    Click any component below to see which company owns the key patents — and what those patents cover. A single smartphone can implicate <strong style="color:var(--text)">250,000+ patents</strong> across 14+ distinct IP estates.
+  </p>
+
+  <div class="explorer">
+    <!-- Phone visual -->
+    <div class="phone-wrap">
+      <div class="phone-svg-container" id="phoneContainer">
+        <svg id="phoneSVG" viewBox="0 0 340 620" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;filter:drop-shadow(0 0 40px rgba(64,64,160,.3))">
+
+          <!-- ── BODY ── -->
+          <rect x="40" y="10" width="220" height="580" rx="36" fill="#12121a" stroke="#2a2a4a" stroke-width="2"/>
+          <!-- screen -->
+          <rect x="50" y="50" width="200" height="490" rx="18" fill="#0d0d18" stroke="#1e1e3a" stroke-width="1"/>
+          <!-- dynamic island / camera bar -->
+          <rect x="110" y="20" width="80" height="24" rx="12" fill="#0a0a12" stroke="#2a2a4a" stroke-width="1.2"/>
+          <circle cx="135" cy="32" r="6" fill="#0d0d18" stroke="#2a2a4a" stroke-width="1"/>
+          <circle cx="135" cy="32" r="3" fill="#161628"/>
+          <circle cx="165" cy="32" r="5" fill="#0d0d18" stroke="#2a2a4a" stroke-width="1"/>
+          <circle cx="165" cy="32" r="2.2" fill="#161628"/>
+          <!-- side buttons -->
+          <rect x="38" y="150" width="4" height="44" rx="2" fill="#1e1e3a"/>
+          <rect x="38" y="204" width="4" height="64" rx="2" fill="#1e1e3a"/>
+          <rect x="258" y="160" width="4" height="76" rx="2" fill="#1e1e3a"/>
+          <!-- home bar -->
+          <rect x="120" y="526" width="60" height="5" rx="2.5" fill="#2a2a4a"/>
+          <!-- speaker grille bottom -->
+          <rect x="118" y="564" width="64" height="6" rx="3" fill="#1e1e3a"/>
+          <!-- speaker dots -->
+          <circle cx="125" cy="567" r="1.5" fill="#0a0a12"/>
+          <circle cx="133" cy="567" r="1.5" fill="#0a0a12"/>
+          <circle cx="141" cy="567" r="1.5" fill="#0a0a12"/>
+          <circle cx="149" cy="567" r="1.5" fill="#0a0a12"/>
+          <circle cx="157" cy="567" r="1.5" fill="#0a0a12"/>
+          <circle cx="165" cy="567" r="1.5" fill="#0a0a12"/>
+          <circle cx="173" cy="567" r="1.5" fill="#0a0a12"/>
+          <circle cx="181" cy="567" r="1.5" fill="#0a0a12"/>
+          <!-- top speaker -->
+          <rect x="128" y="56" width="44" height="5" rx="2.5" fill="#1e1e3a"/>
+          <!-- NFC zone indicator -->
+          <rect x="80" y="300" width="140" height="80" rx="8" fill="#161626" stroke="#1e1e3a" stroke-width="1" stroke-dasharray="4,3"/>
+          <!-- fingerprint under screen -->
+          <circle cx="150" cy="490" r="18" fill="#0f0f1e" stroke="#1e1e3a" stroke-width="1"/>
+          <circle cx="150" cy="490" r="10" fill="#0d0d18"/>
+          <!-- battery bar area -->
+          <rect x="65" y="420" width="170" height="50" rx="8" fill="#161626" stroke="#1e1e3a" stroke-width="1" stroke-dasharray="3,3"/>
+          <!-- processor chip -->
+          <rect x="95" y="200" width="110" height="90" rx="6" fill="#161626" stroke="#1e1e3a" stroke-width="1"/>
+          <rect x="105" y="210" width="90" height="70" rx="4" fill="#0f0f1e" stroke="#252540" stroke-width="1"/>
+          <text x="150" y="252" font-family="DM Mono,monospace" font-size="8" fill="#303060" text-anchor="middle">SoC</text>
+          <!-- gyro chip -->
+          <rect x="58" y="200" width="28" height="28" rx="4" fill="#161626" stroke="#1e1e3a" stroke-width="1"/>
+          <text x="72" y="218" font-family="DM Mono,monospace" font-size="6" fill="#303060" text-anchor="middle">IMU</text>
+          <!-- NFC chip -->
+          <rect x="214" y="300" width="28" height="28" rx="4" fill="#161626" stroke="#1e1e3a" stroke-width="1"/>
+          <text x="228" y="318" font-family="DM Mono,monospace" font-size="6" fill="#303060" text-anchor="middle">NFC</text>
+
+          <!-- ── CLICKABLE ZONES (invisible, on top) ── -->
+          <!-- 0: Cover Glass — full face -->
+          <rect class="svg-zone" data-comp="0" x="50" y="50" width="200" height="490" rx="18" fill="transparent"/>
+          <!-- 1: Touchscreen layer — screen area minus sub-zones -->
+          <rect class="svg-zone" data-comp="1" x="50" y="50" width="200" height="100" rx="4" fill="transparent"/>
+          <!-- 2: OLED panel — upper screen -->
+          <rect class="svg-zone" data-comp="2" x="50" y="150" width="200" height="50" rx="4" fill="transparent"/>
+          <!-- 3: Camera (dynamic island) -->
+          <rect class="svg-zone" data-comp="3" x="100" y="14" width="100" height="36" rx="12" fill="transparent"/>
+          <!-- 4: SoC processor block -->
+          <rect class="svg-zone" data-comp="4" x="95" y="200" width="110" height="90" rx="6" fill="transparent"/>
+          <!-- 5: 5G modem — right side button area (antenna) -->
+          <rect class="svg-zone" data-comp="5" x="255" y="140" width="20" height="120" rx="4" fill="transparent"/>
+          <!-- 6: NFC zone -->
+          <rect class="svg-zone" data-comp="6" x="80" y="295" width="165" height="90" rx="8" fill="transparent"/>
+          <!-- 7: Microphone (top speaker bar) -->
+          <rect class="svg-zone" data-comp="7" x="120" y="50" width="60" height="18" rx="4" fill="transparent"/>
+          <!-- 8: Speaker / codec (bottom grille) -->
+          <rect class="svg-zone" data-comp="8" x="110" y="554" width="80" height="22" rx="4" fill="transparent"/>
+          <!-- 9: Gyro/IMU chip -->
+          <rect class="svg-zone" data-comp="9" x="52" y="195" width="40" height="40" rx="4" fill="transparent"/>
+          <!-- 10: Fingerprint sensor -->
+          <circle class="svg-zone" data-comp="10" cx="150" cy="490" r="22" fill="transparent"/>
+          <!-- 11: Fast charge / charging port -->
+          <rect class="svg-zone" data-comp="11" x="130" y="580" width="40" height="14" rx="4" fill="transparent"/>
+          <!-- 12: Battery -->
+          <rect class="svg-zone" data-comp="12" x="62" y="415" width="176" height="62" rx="8" fill="transparent"/>
+          <!-- 13: Wi-Fi/BT — left buttons (antenna) -->
+          <rect class="svg-zone" data-comp="13" x="32" y="140" width="20" height="130" rx="4" fill="transparent"/>
+          <!-- 14: Dolby audio — top speaker bar (same area as mic, slight overlap) -->
+          <rect class="svg-zone" data-comp="14" x="50" y="50" width="200" height="14" rx="4" fill="transparent"/>
+        </svg>
+
+        <!-- floating labels that appear on hover/active -->
+        <div id="zoneTooltip" style="
+          position:absolute;
+          background:rgba(10,10,20,.92);
+          border:1px solid #2a2a4a;
+          border-radius:8px;
+          padding:.4rem .7rem;
+          font-family:'DM Mono',monospace;
+          font-size:.65rem;
+          color:#e8e8f0;
+          pointer-events:none;
+          display:none;
+          white-space:nowrap;
+          z-index:20;
+        "></div>
+      </div>
+    </div>
+
+    <!-- Component cards -->
+    <div class="component-list" id="componentList"></div>
+  </div>
+  <p style="text-align:center;font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted);margin-top:1.5rem;">
+    ↑ hover any part of the phone to identify it · click to expand
+  </p>
+</section>
+
+<div class="divider"></div>
+
+<!-- NETWORK DIAGRAM -->
+<section class="network-section">
+  <p class="section-label">02 — The Thicket Visualized</p>
+  <h2>The Web of Ownership</h2>
+  <p style="color:#8080b0; max-width:55ch; margin:0 auto 1rem; line-height:1.7;">
+    Each node below is a patent. Lines connect patents that cover overlapping technical territory in a single smartphone. The result: a thicket no single company can navigate alone.
+  </p>
+  <canvas id="thicket-canvas" width="900" height="500"></canvas>
+  <div class="legend" id="legend"></div>
+</section>
+
+<div class="divider"></div>
+
+<!-- WHY IT MATTERS -->
+<section>
+  <p class="section-label">03 — Policy Implications</p>
+  <h2>Why Patent Thickets Matter</h2>
+  <div class="impact-grid">
+    <div class="impact-card">
+      <div class="impact-num" style="color:var(--qualcomm)">$120B</div>
+      <h3>Annual Licensing Costs</h3>
+      <p>Qualcomm alone collected over $6B/year in patent royalties at peak. Across the industry, cumulative licensing costs in mobile technology exceed $100B annually.</p>
+    </div>
+    <div class="impact-card">
+      <div class="impact-num" style="color:var(--apple)">250K+</div>
+      <h3>Patents Per Device</h3>
+      <p>Estimates suggest a modern smartphone implicates over 250,000 active patents. Clearing rights to all of them is practically impossible for new entrants.</p>
+    </div>
+    <div class="impact-card">
+      <div class="impact-num" style="color:var(--samsung)">9–10%</div>
+      <h3>Royalty Stack</h3>
+      <p>When every patent holder charges individually, royalty stacks can consume 9–10% of device revenue — a phenomenon called "royalty stacking" or "double marginalization."</p>
+    </div>
+    <div class="impact-card">
+      <div class="impact-num" style="color:var(--nokia)">↓ Entry</div>
+      <h3>Barrier to Innovation</h3>
+      <p>Startups cannot afford to license hundreds of patents. Patent thickets thus entrench incumbents and stifle disruptive competition, the opposite of the patent system's intent.</p>
+    </div>
+    <div class="impact-card">
+      <div class="impact-num" style="color:var(--dolby)">FRAND</div>
+      <h3>Standard-Essential Patents</h3>
+      <p>Some patents are "standard-essential" (SEPs) for protocols like 5G. Holders must license on Fair, Reasonable, and Non-Discriminatory (FRAND) terms — but disputes over what's "fair" still fuel years of litigation.</p>
+    </div>
+    <div class="impact-card">
+      <div class="impact-num" style="color:var(--interdigital)">PAEs</div>
+      <h3>Patent Assertion Entities</h3>
+      <p>Non-practicing entities ("patent trolls") acquire patents solely to litigate. They thicken the thicket without contributing to innovation, extracting billions in settlements.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════
+     SECTION 04 — TIMELINE
+════════════════════════════════════════════════ -->
+<section>
+  <p class="section-label">04 — History</p>
+  <h2>The Smartphone Patent Wars</h2>
+
+  <div style="max-width:72ch;margin-bottom:2rem;">
+    <p style="color:#8080b0;line-height:1.8;margin-bottom:1.2rem;font-size:.95rem;">
+      The smartphone patent wars were a series of ongoing intellectual property disputes between the world's largest technology companies fought primarily between 2009 and 2019 — though the conflict has never fully ended. At their peak, over fifty simultaneous lawsuits were active in more than ten countries, involving Apple, Samsung, Nokia, Qualcomm, HTC, Motorola, Ericsson, and Microsoft. The disputes covered design patents, software utility patents, and standard-essential patents (SEPs) across the full stack of smartphone technology.
+    </p>
+    <p style="color:#8080b0;line-height:1.8;margin-bottom:1.2rem;font-size:.95rem;">
+      <strong style="color:#c0c0e0;">Origins.</strong> The conflict has roots in the feature-phone era, when Nokia, Ericsson, and Qualcomm had already built enormous portfolios of cellular SEPs that every mobile device manufacturer was required to license. When the smartphone era began with Apple's iPhone launch in 2007, these incumbents saw a new class of extremely valuable devices entering their licensing universe. Nokia — which was simultaneously losing market share to iPhone — filed the first major smartphone patent lawsuit in October 2009, asserting ten patents covering GSM, UMTS, and WLAN standards. Apple's immediate countersuit with thirteen patents signalled that the new era of mobile computing would be fought as much in courtrooms as in the marketplace.
+    </p>
+    <p style="color:#8080b0;line-height:1.8;margin-bottom:1.2rem;font-size:.95rem;">
+      <strong style="color:#c0c0e0;">The Android Dimension.</strong> Apple's 2010 lawsuit against HTC — the first Android manufacturer — transformed the conflict from a bilateral licensing dispute into a structural battle over the smartphone operating system itself. Steve Jobs reportedly told his biographer that he was willing to spend every dollar of Apple's cash reserves to destroy Android, which he viewed as a stolen product. Google responded in 2012 by acquiring Motorola Mobility for $12.5 billion — a deal widely understood to be primarily a defensive patent acquisition, giving Google a stockpile of over 17,000 patents to deploy against Apple and Microsoft. Google later sold Motorola's handset business to Lenovo in 2014, retaining the majority of the patents.
+    </p>
+    <p style="color:#8080b0;line-height:1.8;margin-bottom:1.2rem;font-size:.95rem;">
+      <strong style="color:#c0c0e0;">The Qualcomm Dimension.</strong> Running parallel to the design-patent battles was a deeper structural dispute over Qualcomm's control of cellular modem IP. Qualcomm's business model — collecting royalties from every smartphone sold worldwide calculated on the device's selling price, not just the chip's value — generated billions annually but attracted intense regulatory scrutiny. The US FTC, the EU, South Korea's KFTC, China's NDRC, and Taiwan's FTC all opened antitrust investigations between 2015 and 2019. Apple's 2017 lawsuit against Qualcomm was not merely a bilateral dispute; it was an attempt to dismantle a royalty regime that Apple calculated was costing it approximately $1 per iPhone per year more than it should have paid.
+    </p>
+    <p style="color:#8080b0;line-height:1.8;margin-bottom:2.5rem;font-size:.95rem;">
+      <strong style="color:#c0c0e0;">Current Position (2020–Present).</strong> The core Apple–Samsung dispute ended in a global cross-license in 2018. The Apple–Qualcomm war ended abruptly in April 2019 with Apple paying approximately $4.5 billion and signing a multi-year chipset and license deal — just one day before the FTC v. Qualcomm trial was due to begin. The FTC won at district court in May 2019, but was reversed by the Ninth Circuit in August 2020 on the grounds that Qualcomm's conduct did not cause the kind of anticompetitive harm the Sherman Act was designed to prevent. The FTC dropped the case in 2021. However, the wars have not ended — they have simply shifted terrain. Nokia is now aggressively pursuing 5G SEP royalties from OPPO (leading to OPPO withdrawing from several European markets in 2022), Lenovo, and others. Ericsson sued Apple in 2022 when their license lapsed, seeking to renew at higher 5G rates. InterDigital continues to assert its SEP portfolio against OEMs globally. The battlefield has moved from touch-screen gestures and rounded rectangles to the invisible infrastructure of 5G connectivity — and with 6G standardisation already underway, the next round has already begun.
+    </p>
+  </div>
+
+  <p class="section-label" style="margin-bottom:1rem;">Chronological Record</p>
+  <div class="timeline" id="timeline"></div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════
+     SECTION 05 — LITIGATION MAP
+════════════════════════════════════════════════ -->
+<section class="network-section">
+  <p class="section-label">05 — Litigation Map</p>
+  <h2>The Smartphone Patent Wars</h2>
+  <p style="color:#8080b0;max-width:60ch;margin:0 auto 2rem;line-height:1.7;">
+    Each arrow represents a major lawsuit or ITC complaint. Bidirectional arrows indicate countersuits. Hover a node or arrow to see case details.
+  </p>
+  <div id="litmap-wrap" style="position:relative;max-width:900px;margin:0 auto;">
+    <canvas id="litmap-canvas" style="display:block;width:100%;border-radius:16px;background:var(--surface);border:1px solid var(--border);"></canvas>
+    <div id="litmap-tooltip" style="position:absolute;background:rgba(10,10,20,.95);border:1px solid #2a2a4a;border-radius:10px;padding:.6rem 1rem;font-family:'DM Mono',monospace;font-size:.7rem;color:#e8e8f0;pointer-events:none;display:none;max-width:280px;line-height:1.6;z-index:30;"></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════
+     SECTION 06 — KEY CONCEPTS
+════════════════════════════════════════════════ -->
+<section>
+  <p class="section-label">06 — Glossary</p>
+  <h2>Key Concepts</h2>
+  <p style="color:#8080b0;max-width:60ch;line-height:1.7;margin-bottom:3rem;">
+    Understanding patent thickets requires fluency in a specific set of legal and economic terms. Click any concept to expand its definition.
+  </p>
+  <div class="concepts-grid" id="conceptsGrid"></div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════
+     SECTION 07 — SOURCES
+════════════════════════════════════════════════ -->
+<section>
+  <p class="section-label">07 — Bibliography</p>
+  <h2>Sources &amp; Further Reading</h2>
+  <p style="color:#8080b0;max-width:60ch;line-height:1.7;margin-bottom:3rem;">
+    All factual claims on this site are sourced. Primary sources are marked <span style="color:var(--nokia);font-family:'DM Mono',monospace;font-size:.75rem;">★ PRIMARY</span>.
+  </p>
+  <div class="sources-list" id="sourcesList"></div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CREATORS -->
+<section style="text-align:center;padding:4rem 2rem;">
+  <p class="section-label" style="text-align:center;">Created By</p>
+  <div style="display:flex;justify-content:center;gap:4rem;flex-wrap:wrap;margin-top:1.5rem;">
+    <div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.05em;color:var(--text);">Adhish Paul</div>
+      <div style="font-family:'DM Mono',monospace;font-size:.75rem;color:var(--muted);margin-top:.3rem;">23BBL005</div>
+    </div>
+    <div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.05em;color:var(--text);">Samuel Panmei</div>
+      <div style="font-family:'DM Mono',monospace;font-size:.75rem;color:var(--muted);margin-top:.3rem;">23BBL036</div>
+    </div>
+  </div>
+  <p style="font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted);margin-top:2rem;">
+    Intellectual Property Rights Paper — Creative ICE Component &nbsp;·&nbsp; March 2026
+  </p>
+</section>
+
+<footer>
+  Intellectual Property Rights Paper — Creative ICE Component &nbsp;·&nbsp; Patent Thicket: The Smartphone &nbsp;·&nbsp; All sources listed in §07
+</footer>
+
+<script>
+const COMPANIES = {
+  qualcomm:     { name: 'Qualcomm',           color: getComputedStyle(document.documentElement).getPropertyValue('--qualcomm').trim() },
+  apple:        { name: 'Apple',              color: getComputedStyle(document.documentElement).getPropertyValue('--apple').trim() },
+  samsung:      { name: 'Samsung',            color: getComputedStyle(document.documentElement).getPropertyValue('--samsung').trim() },
+  interdigital: { name: 'InterDigital',       color: getComputedStyle(document.documentElement).getPropertyValue('--interdigital').trim() },
+  nokia:        { name: 'Nokia',              color: getComputedStyle(document.documentElement).getPropertyValue('--nokia').trim() },
+  dolby:        { name: 'Dolby',             color: getComputedStyle(document.documentElement).getPropertyValue('--dolby').trim() },
+  corning:      { name: 'Corning',            color: getComputedStyle(document.documentElement).getPropertyValue('--corning').trim() },
+  knowles:      { name: 'Knowles Corp.',      color: getComputedStyle(document.documentElement).getPropertyValue('--knowles').trim() },
+  cirrus:       { name: 'Cirrus Logic',       color: getComputedStyle(document.documentElement).getPropertyValue('--cirrus').trim() },
+  arm:          { name: 'ARM Holdings',       color: getComputedStyle(document.documentElement).getPropertyValue('--arm').trim() },
+  nxp:          { name: 'NXP Semiconductors', color: getComputedStyle(document.documentElement).getPropertyValue('--nxp').trim() },
+  tdk:          { name: 'TDK / InvenSense',   color: getComputedStyle(document.documentElement).getPropertyValue('--tdk').trim() },
+  synaptics:    { name: 'Synaptics',          color: getComputedStyle(document.documentElement).getPropertyValue('--synaptics').trim() },
+  caltech:      { name: 'Caltech / Sony',     color: getComputedStyle(document.documentElement).getPropertyValue('--caltech').trim() },
+};
+
+const COMPONENTS = [
+  {
+    name: 'Cover Glass',
+    owner: 'corning',
+    patent: 'US7,666,511 · US8,713,972',
+    desc: 'Corning\'s Gorilla Glass uses a chemically-strengthened ion-exchange process — potassium ions replace sodium ions under heat, creating a compressed surface layer. Corning has partnered with Apple since the original iPhone (2007) and holds patents across Gorilla Glass generations 1–7 and Victus. Near-monopoly in premium cover glass.',
+    region: null,
+  },
+  {
+    name: 'Touchscreen (Multi-Touch Layer)',
+    owner: 'apple',
+    patent: 'US7,479,949 · US7,966,578',
+    desc: 'Apple\'s US7,479,949 — often called "the multitouch patent" — covers interfaces responding to simultaneous input from two or more fingers. Apple did not invent the touchscreen but significantly advanced capacitive multi-touch. This patent was central to the Apple v. Samsung litigation that ran from 2011–2018. Courts in Germany and the Netherlands have issued split rulings on whether Android implementations infringe.',
+    region: 0,
+  },
+  {
+    name: 'OLED Display Panel',
+    owner: 'samsung',
+    patent: null,
+    desc: 'Samsung Display is the dominant manufacturer of OLED panels used in premium smartphones including the iPhone. Samsung holds extensive manufacturing and materials patents on thin-film encapsulation, RGB sub-pixel arrangement, and flexible OLED laminates. Apple is Samsung\'s biggest OLED customer — and its biggest competitor. A textbook "co-opetition" thicket.',
+    region: null,
+  },
+  {
+    name: 'Camera Sensor (CMOS)',
+    owner: 'caltech',
+    patent: null,
+    desc: 'The foundational active pixel sensor (APS) CMOS technology was developed at NASA/JPL and is owned by Caltech, which licenses it to Sony and Samsung — the world\'s two largest image sensor manufacturers. On top of that base IP, Sony and Samsung hold their own patents on BSI (back-side illuminated) architecture, multi-aperture zoom, and stacked sensor designs. A rare two-layer licensing structure.',
+    region: 2,
+  },
+  {
+    name: 'Application Processor (SoC)',
+    owner: 'arm',
+    patent: null,
+    desc: 'ARM Holdings does not make a single chip — it licenses its CPU instruction set architecture (ISA) to over 1,000 partners. As of 2012, 95% of smartphone chips were ARM-based. Apple holds an Architecture License Agreement (ALA) to design its own A-series cores; Qualcomm does the same for Snapdragon. So every phone pays ARM, then Apple or Qualcomm additionally own the specific implementation patents on top.',
+    region: 3,
+  },
+  {
+    name: '5G / Cellular Modem',
+    owner: 'qualcomm',
+    patent: null,
+    desc: 'Qualcomm holds over 140,000 patents globally, of which ~65,000 are disclosed cellular SEPs (standard-essential patents). The company ranks #1 in the LexisNexis 5G Patent Asset Index by quality. Every Android phone sold anywhere must license Qualcomm\'s 5G IP. Huawei, Ericsson, Nokia, and InterDigital also hold large SEP portfolios — meaning handset makers must stack licenses from all of them just to connect to a cellular network.',
+    region: null,
+  },
+  {
+    name: 'NFC Chip',
+    owner: 'nxp',
+    patent: null,
+    desc: 'NXP Semiconductors co-invented NFC technology alongside Sony and Inside Secure in the early 2000s and remains the dominant NFC chipset supplier. NXP counts Apple, Samsung, Dell, and Ericsson as customers. Every tap-to-pay transaction — Apple Pay, Google Pay, Samsung Pay — rides on NXP or Sony NFC IP. NXP\'s patents are highly cited in device authentication and positioning, making them a key licensing node.',
+    region: null,
+  },
+  {
+    name: 'MEMS Microphone',
+    owner: 'knowles',
+    patent: 'US9,743,191 · US10,178,478',
+    desc: 'Knowles Corporation introduced the world\'s first MEMS microphone in 2003 and has been Apple\'s primary mic supplier. An iPhone 7 Plus teardown found four Knowles SiSonic MEMS mics inside. Knowles actively enforces its IP: the ITC ruled GoerTek\'s silicon microphone parts infringed three Knowles patents. By 2021, Chinese competitor Goermicro had overtaken Knowles in unit volume — but Knowles still holds the core foundational patents.',
+    region: null,
+  },
+  {
+    name: 'Speaker & Audio Codec',
+    owner: 'cirrus',
+    patent: null,
+    desc: 'Cirrus Logic supplies the smart codec ICs that convert digital audio signals to analog for the speaker, as well as boosted amplifiers and haptic driver chips. The company derives ~89% of its revenue from Apple (as of 2025) and holds roughly 4,260 issued and pending patents. Cirrus Logic chips are in every iPhone; the codec patent estate covers noise shaping, dynamic range compression, and speaker protection algorithms.',
+    region: null,
+  },
+  {
+    name: 'Gyroscope & Accelerometer',
+    owner: 'tdk',
+    patent: 'US7,907,838 · US8,351,773',
+    desc: 'InvenSense (acquired by TDK in 2016 for $1.3B) pioneered MotionTracking MEMS sensors for mobile devices — gyroscopes, accelerometers, and compasses. InvenSense components were in the Samsung Galaxy line and iPhone 6. STMicroelectronics and Bosch Sensortec are the other major holders. The motion sensor IP space has ~200 active players, but TDK/InvenSense and STMicro hold dominant portfolios covering optical image stabilisation (OIS) in camera systems.',
+    region: null,
+  },
+  {
+    name: 'Fingerprint Sensor',
+    owner: 'synaptics',
+    patent: null,
+    desc: 'A three-way thicket. Apple acquired AuthenTec in 2012 and immediately locked up capacitive fingerprint IP for Touch ID, leaving Android OEMs scrambling. Synaptics acquired Validity Sensors in 2013 and developed the first optical under-display fingerprint sensor, shipping in Vivo phones in 2018. Qualcomm developed an ultrasonic variant (Sense ID) capable of scanning through glass and metal. Each approach has a distinct, non-overlapping patent estate — but all three cover the same physical use case.',
+    region: null,
+  },
+  {
+    name: 'Fast Charging',
+    owner: 'qualcomm',
+    patent: null,
+    desc: 'Qualcomm\'s Quick Charge is the dominant licensed fast-charging protocol, with Quick Charge 5 (100W, announced 2020) able to charge a 4500mAh battery to 50% in five minutes. Any Android OEM using the "Quick Charge" branding pays Qualcomm. Rival proprietary standards — OPPO/OnePlus VOOC, Huawei SuperCharge — were developed specifically to avoid this royalty. USB Power Delivery (USB-IF) offers a standards-based alternative but with its own licensing layer.',
+    region: 1,
+  },
+  {
+    name: 'Battery Cells',
+    owner: 'interdigital',
+    patent: 'US8,213,994 · US9,847,661',
+    desc: 'Battery cell IP is spread across Samsung SDI, LG Energy Solution, and CATL for lithium-ion chemistry and cell fabrication. InterDigital holds SEPs relevant to wireless power delivery and charging management in LTE/5G devices. Qualcomm additionally owns Quick Charge hardware patents. No single entity has a monopoly on battery IP — making this one of the more fragmented component thickets.',
+    region: null,
+  },
+  {
+    name: 'Wireless Connectivity (Wi-Fi / Bluetooth)',
+    owner: 'nokia',
+    patent: null,
+    desc: 'Nokia holds one of the largest 5G and Wi-Fi SEP portfolios globally, covering OFDM modulation, MIMO antenna design, and network handover. Broadcom supplies most Wi-Fi/Bluetooth combo chips and holds its own implementation patents. Ericsson and InterDigital are also major SEP holders. Every smartphone must license from multiple SEP holders simply to implement standards like 802.11 (Wi-Fi) and Bluetooth — regardless of which chip is used.',
+    region: null,
+  },
+  {
+    name: 'Audio Processing (Dolby)',
+    owner: 'dolby',
+    patent: 'US9,716,959 · US10,854,198',
+    desc: 'Dolby Atmos covers object-based spatial audio rendering; AC-4 covers the codec compression standard used in streaming and broadcast. Any phone bearing "Dolby Audio" branding pays a per-unit license fee. Dolby\'s psychoacoustic noise-shaping patents are also embedded in Bluetooth audio codecs. This is a purely software/IP layer — Dolby manufactures nothing, yet collects royalties from every major OEM.',
+    region: null,
+  },
+];
+
+// ── BUILD COMPONENT CARDS ──
+const list = document.getElementById('componentList');
+let activeComp = null;
+
+COMPONENTS.forEach((c, i) => {
+  const co = COMPANIES[c.owner];
+  const card = document.createElement('div');
+  card.className = 'comp-card';
+  card.style.setProperty('--accent-color', co.color);
+  card.innerHTML = `
+    <div class="comp-header">
+      <div class="comp-dot"></div>
+      <span class="comp-name">${c.name}</span>
+    </div>
+    <div class="comp-owner">${co.name}</div>
+    ${c.patent ? `<div class="comp-patent">${c.patent}</div>` : ''}
+    <div class="comp-desc">${c.desc}</div>
+  `;
+  card.addEventListener('click', () => activate(i));
+  list.appendChild(card);
+});
+
+// ── SVG ZONE INTERACTIONS ──
+const zones = document.querySelectorAll('.svg-zone');
+const tooltip = document.getElementById('zoneTooltip');
+const phoneSVG = document.getElementById('phoneSVG');
+
+// Add SVG zone styles
+const styleEl = document.createElement('style');
+styleEl.textContent = `
+  .svg-zone { cursor: pointer; transition: fill .15s; }
+  .svg-zone:hover { fill: rgba(255,255,255,0.06) !important; }
+  .svg-zone.active { fill: rgba(255,255,255,0.10) !important; stroke: currentColor; stroke-width: 1.5; }
+`;
+document.head.appendChild(styleEl);
+
+zones.forEach(z => {
+  const idx = parseInt(z.dataset.comp);
+  const comp = COMPONENTS[idx];
+  if (!comp) return;
+  const co = COMPANIES[comp.owner];
+  z.style.stroke = co.color;
+  z.style.strokeWidth = '0';
+
+  z.addEventListener('mouseenter', (e) => {
+    tooltip.textContent = comp.name;
+    tooltip.style.display = 'block';
+    positionTooltip(e);
+  });
+  z.addEventListener('mousemove', positionTooltip);
+  z.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+  z.addEventListener('click', () => activate(idx));
+});
+
+function positionTooltip(e) {
+  const rect = phoneSVG.closest('.phone-svg-container').getBoundingClientRect();
+  const x = e.clientX - rect.left + 10;
+  const y = e.clientY - rect.top - 30;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top = y + 'px';
+}
+
+function activate(i) {
+  if (activeComp === i) { deactivateAll(); return; }
+  deactivateAll();
+  activeComp = i;
+
+  // highlight card
+  list.children[i].classList.add('active');
+  list.children[i].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  // highlight SVG zone
+  const co = COMPANIES[COMPONENTS[i].owner];
+  zones.forEach(z => {
+    if (parseInt(z.dataset.comp) === i) {
+      z.classList.add('active');
+      z.style.fill = co.color + '22';
+      z.style.strokeWidth = '2';
+    }
+  });
+}
+
+function deactivateAll() {
+  activeComp = null;
+  [...list.children].forEach(c => c.classList.remove('active'));
+  zones.forEach(z => {
+    z.classList.remove('active');
+    z.style.fill = 'transparent';
+    z.style.strokeWidth = '0';
+  });
+}
+
+// ── BUILD LEGEND ──
+const legendEl = document.getElementById('legend');
+Object.entries(COMPANIES).forEach(([k, v]) => {
+  legendEl.innerHTML += `<div class="legend-item"><div class="legend-dot" style="background:${v.color}"></div>${v.name}</div>`;
+});
+
+// ── NETWORK CANVAS ──
+const canvas = document.getElementById('thicket-canvas');
+const ctx = canvas.getContext('2d');
+
+// Responsive canvas
+function resizeCanvas() {
+  const w = Math.min(900, window.innerWidth - 48);
+  canvas.width = w;
+  canvas.height = Math.round(w * 0.55);
+  drawNetwork();
+}
+
+function rnd(min, max) { return Math.random() * (max - min) + min; }
+
+let nodes = [];
+let edges = [];
+let built = false;
+
+function buildGraph() {
+  if (built) return;
+  built = true;
+  const W = canvas.width, H = canvas.height;
+  const companyKeys = Object.keys(COMPANIES);
+  const colors = companyKeys.map(k => COMPANIES[k].color);
+
+  // Central product node
+  nodes.push({ x: W/2, y: H/2, r: 18, color: '#e8e8f0', label: 'Smartphone', alpha: 1, company: -1 });
+
+  // Patent nodes per company
+  companyKeys.forEach((k, ci) => {
+    const angle = (ci / companyKeys.length) * Math.PI * 2 - Math.PI/2;
+    const cx = W/2 + Math.cos(angle) * W * 0.28;
+    const cy = H/2 + Math.sin(angle) * H * 0.32;
+    const count = 6 + Math.floor(rnd(0,5));
+    for (let j = 0; j < count; j++) {
+      const a2 = angle + rnd(-0.9, 0.9);
+      const dist = rnd(60, 140);
+      nodes.push({
+        x: cx + Math.cos(a2) * dist * (W/900),
+        y: cy + Math.sin(a2) * dist * (H/500),
+        r: rnd(5, 10),
+        color: colors[ci],
+        company: ci,
+        alpha: rnd(0.6, 1),
+      });
+    }
+  });
+
+  // Edges: all nodes connect to central
+  for (let i = 1; i < nodes.length; i++) {
+    edges.push([0, i]);
+  }
+  // Cross-company edges (overlapping patents)
+  for (let i = 1; i < nodes.length; i++) {
+    for (let j = i+1; j < nodes.length; j++) {
+      if (nodes[i].company !== nodes[j].company && Math.random() < 0.12) {
+        edges.push([i, j]);
+      }
+    }
+  }
+}
+
+function drawNetwork() {
+  buildGraph();
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = '#12121a';
+  ctx.fillRect(0, 0, W, H);
+
+  // Draw edges
+  edges.forEach(([a, b]) => {
+    const na = nodes[a], nb = nodes[b];
+    ctx.beginPath();
+    ctx.moveTo(na.x, na.y);
+    ctx.lineTo(nb.x, nb.y);
+    if (na.company === -1 || nb.company === -1) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+      ctx.lineWidth = 1;
+    } else {
+      const col = na.company === nb.company ? nodes.find(n=>n.company===na.company)?.color || '#fff' : 'rgba(255,255,255,0.15)';
+      ctx.strokeStyle = na.company !== nb.company ? 'rgba(255,100,100,0.25)' : col + '33';
+      ctx.lineWidth = na.company !== nb.company ? 1.5 : 0.8;
+    }
+    ctx.stroke();
+  });
+
+  // Draw nodes
+  nodes.forEach(n => {
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+    ctx.fillStyle = n.color;
+    ctx.globalAlpha = n.alpha;
+    ctx.fill();
+    if (n.company === -1) {
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = '#0a0a0f';
+      ctx.font = `bold ${Math.round(n.r * .75)}px DM Sans`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('📱', n.x, n.y);
+    }
+    ctx.globalAlpha = 1;
+  });
+
+  // Label "overlapping IP" areas
+  const overlaps = edges.filter(([a,b]) => nodes[a].company !== -1 && nodes[b].company !== -1 && nodes[a].company !== nodes[b].company);
+  overlaps.forEach(([a, b]) => {
+    const mx = (nodes[a].x + nodes[b].x) / 2;
+    const my = (nodes[a].y + nodes[b].y) / 2;
+    ctx.beginPath();
+    ctx.arc(mx, my, 4, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,80,80,0.6)';
+    ctx.fill();
+  });
+
+  // Legend label
+  ctx.fillStyle = 'rgba(96,96,160,0.8)';
+  ctx.font = `${Math.round(W * 0.013)}px DM Mono`;
+  ctx.textAlign = 'left';
+  ctx.fillText('● red bridges = overlapping cross-company patents', 14, H - 12);
+}
+
+window.addEventListener('resize', () => { built = false; nodes = []; edges = []; resizeCanvas(); });
+resizeCanvas();
+
+// ══════════════════════════════════════════════
+// TIMELINE DATA & RENDER
+// ══════════════════════════════════════════════
+const TIMELINE_EVENTS = [
+  { date:'Oct 2009', color:'#40d080', tag:'FILING', title:'Nokia v. Apple — The Shot Heard Round the World',
+    body:'Nokia files in the US District Court of Delaware accusing Apple of infringing 10 patents covering GSM, UMTS, and WLAN standards. Nokia, losing market share to the iPhone, turned to its vast patent portfolio. Apple countersued with 13 patents weeks later — the smartphone patent wars had begun.' },
+  { date:'Mar 2010', color:'#a0c8ff', tag:'FILING', title:'Apple v. HTC — First Android Offensive',
+    body:'Apple sues HTC over 20 patents covering multi-touch, iPhone UI, and hardware architecture — the first direct strike at an Android manufacturer. Steve Jobs personally approved the action, calling Android a "stolen product." HTC countersued in July 2010.' },
+  { date:'Jun 2011', color:'#40d080', tag:'SETTLEMENT', title:'Nokia–Apple Peace Treaty',
+    body:'After two years and over 60 patents across 6 district cases and 3 European jurisdictions, Nokia and Apple settle. Apple pays Nokia a one-time undisclosed sum plus ongoing royalties. Nokia becomes an Apple licensee — and Apple frees up resources to focus on Samsung.' },
+  { date:'Apr 2011', color:'#a0c8ff', tag:'FILING', title:'Apple v. Samsung — The Main Event Begins',
+    body:'Apple sues Samsung in the Northern District of California, accusing it of "slavishly" copying iPhone and iPad designs. Within days, Samsung countersues in South Korea, Japan, and Germany over 3G SEPs. By late 2011 the two companies are in 20+ cases across 10 countries.' },
+  { date:'Aug 2012', color:'#a0c8ff', tag:'VERDICT', title:'Apple Wins $1.05B Against Samsung (Trial 1)',
+    body:'A California jury finds Samsung infringed Apple design and utility patents covering the rounded-rectangle phone shape, bounce-back scrolling, and pinch-to-zoom. Samsung is ordered to pay $1.05 billion — later reduced on appeal to ~$539 million after a Supreme Court ruling in 2016 clarified design patent damages methodology.' },
+  { date:'Apr 2014', color:'#4080ff', tag:'VERDICT', title:'Apple Wins $119M in Trial 2 — But Less Than Asked',
+    body:'A second California jury awards Apple $119.6 million from Samsung for infringing patents including autocorrect and slide-to-unlock. Apple had sought over $2 billion. The Guardian called it a "pyrrhic victory." Samsung\'s counterclaim wins $158,400. Apple\'s bid to ban Samsung products is denied.' },
+  { date:'Jan 2017', color:'#e84040', tag:'FILING', title:'FTC v. Qualcomm — Antitrust Reckoning',
+    body:'The US Federal Trade Commission sues Qualcomm, alleging its "no license, no chips" policy, refusal to license SEPs to rival chipmakers, and exclusive deal with Apple (2011–2013) violated the Sherman Act. This triggers Apple to file its own $1 billion lawsuit against Qualcomm three days later.' },
+  { date:'Apr 2019', color:'#e84040', tag:'SETTLEMENT', title:'Apple–Qualcomm Global Settlement: $4.5B to Qualcomm',
+    body:'After two years of worldwide litigation, Apple and Qualcomm settle all global cases. Apple pays Qualcomm approximately $4.5 billion, signs a 6-year patent license (with 2-year extension option), and agrees to a multiyear chipset supply deal — bringing Qualcomm modems back into iPhones for 5G. Qualcomm stock surges 23% on the day.' },
+  { date:'May 2019', color:'#e84040', tag:'RULING', title:'FTC Wins at Trial — Qualcomm Found to Violate Antitrust Law',
+    body:'Judge Lucy Koh rules that Qualcomm\'s three practices violated US antitrust law. She orders Qualcomm to restructure licensing agreements and license SEPs to rival chipmakers. Qualcomm immediately appeals.' },
+  { date:'Aug 2020', color:'#e84040', tag:'REVERSAL', title:'9th Circuit Reverses FTC — Qualcomm Wins on Appeal',
+    body:'A unanimous Ninth Circuit panel reverses Judge Koh, finding the FTC failed to prove anticompetitive harm to the modem chip market. The court rules Qualcomm has no antitrust duty to license SEPs to rival chip suppliers. The FTC drops the case in 2021, citing "significant headwinds."' },
+  { date:'Jun 2018', color:'#a0c8ff', tag:'SETTLEMENT', title:'Apple–Samsung End 7-Year War',
+    body:'Apple and Samsung quietly settle all remaining global litigation on undisclosed terms. The two companies, who together make ~40% of all smartphones worldwide, agreed to a cross-license through 2029 (renewed in 2022). They remain both partners (Samsung supplies Apple\'s OLED panels) and fierce competitors.' },
+  { date:'2022–2025', color:'#40d080', tag:'ONGOING', title:'Nokia v. OPPO, Lenovo, and the 5G SEP Wave',
+    body:'As 5G SEP portfolios mature, Nokia re-enters aggressive licensing mode — suing OPPO in 2021, leading to OPPO exiting several European markets rather than paying. Similar actions target Lenovo and others. The battlefield has shifted from design patents to 5G infrastructure IP, with no sign of slowing.' },
+];
+
+const tlEl = document.getElementById('timeline');
+TIMELINE_EVENTS.forEach((ev, i) => {
+  const item = document.createElement('div');
+  item.className = 'tl-item';
+  item.style.transitionDelay = `${i * 0.04}s`;
+  item.innerHTML = `
+    <div class="tl-dot" style="border-color:${ev.color};"></div>
+    <div class="tl-date">${ev.date}</div>
+    <span class="tl-tag" style="background:${ev.color}18;color:${ev.color};border:1px solid ${ev.color}44;">${ev.tag}</span>
+    <div class="tl-title">${ev.title}</div>
+    <div class="tl-body">${ev.body}</div>
+  `;
+  tlEl.appendChild(item);
+});
+
+// Scroll-triggered reveal
+const tlObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.tl-item').forEach(el => tlObserver.observe(el));
+
+
+// ══════════════════════════════════════════════
+// LITIGATION MAP
+// ══════════════════════════════════════════════
+const LIT_NODES = [
+  { id:'apple',    label:'Apple',    color:'#a0c8ff', x:.5,  y:.15 },
+  { id:'samsung',  label:'Samsung',  color:'#4080ff', x:.82, y:.5  },
+  { id:'nokia',    label:'Nokia',    color:'#40d080', x:.18, y:.22 },
+  { id:'qualcomm', label:'Qualcomm', color:'#e84040', x:.18, y:.78 },
+  { id:'htc',      label:'HTC',      color:'#ff8c40', x:.72, y:.82 },
+  { id:'motorola', label:'Motorola', color:'#c040ff', x:.5,  y:.85 },
+  { id:'ftc',      label:'FTC',      color:'#f0d060', x:.28, y:.55 },
+  { id:'ericsson', label:'Ericsson', color:'#60d0d0', x:.82, y:.18 },
+];
+
+const LIT_EDGES = [
+  { from:'nokia',    to:'apple',    bi:true,  year:'2009–11', desc:'Nokia v. Apple: 10 Nokia SEPs (GSM/UMTS/WLAN). Apple countersues with 13 patents. Settled Jun 2011 with Apple paying ongoing royalties to Nokia.' },
+  { from:'apple',    to:'htc',      bi:true,  year:'2010–12', desc:'Apple v. HTC: 20 patents covering multi-touch and iPhone UI. First Android offensive. Settled Nov 2012 — HTC agreed to pay Apple royalties per device.' },
+  { from:'apple',    to:'motorola', bi:true,  year:'2010–14', desc:'Apple v. Motorola Mobility: Motorola pre-emptively sued Apple over 18 patents. Google acquired Motorola (2012) primarily for its patent portfolio. Cases eventually dismissed.' },
+  { from:'apple',    to:'samsung',  bi:true,  year:'2011–18', desc:'Apple v. Samsung: The defining smartphone patent war. 50+ lawsuits in 10+ countries. $1.05B jury award (2012), reduced to $539M. Settled globally Jun 2018 with cross-license through 2029.' },
+  { from:'apple',    to:'qualcomm', bi:true,  year:'2017–19', desc:'Apple v. Qualcomm: Apple sued for $1B over Qualcomm\'s "no license, no chips" policy and supra-FRAND royalties. Settled Apr 2019 — Apple paid ~$4.5B, signed 6-year license + chipset deal.' },
+  { from:'ftc',      to:'qualcomm', bi:false, year:'2017–21', desc:'FTC v. Qualcomm: FTC alleged antitrust violations — refusal to license SEPs to rival chipmakers, exclusive deal with Apple. District court ruled for FTC (2019); 9th Circuit reversed (2020); FTC dropped case (2021).' },
+  { from:'samsung',  to:'ericsson', bi:true,  year:'2012–14', desc:'Ericsson v. Samsung: Ericsson sued multiple Android OEMs over wireless SEPs. Samsung paid $650M upfront + ongoing royalties. Ericsson later sued Samsung again in 2021 when the license lapsed.' },
+  { from:'nokia',    to:'samsung',  bi:false, year:'2012+',   desc:'Nokia v. Samsung (and other Android OEMs): Nokia used its SEP portfolio to extract royalties from Android manufacturers after settling with Apple. Later extended to OPPO and Lenovo in 5G era.' },
+  { from:'motorola', to:'microsoft',bi:false, year:'2010–13', desc:'Microsoft v. Motorola: Microsoft sued Motorola over Android/Xbox patents. Motorola countersued over H.264 and 802.11 SEPs. Cases eventually settled after Google sold Motorola to Lenovo (2014).' },
+];
+// Add microsoft as synthetic node
+LIT_NODES.push({ id:'microsoft', label:'Microsoft', color:'#80c0ff', x:.72, y:.18 });
+
+const litCanvas = document.getElementById('litmap-canvas');
+const litCtx = litCanvas.getContext('2d');
+const litTip = document.getElementById('litmap-tooltip');
+
+function drawLitMap() {
+  const W = litCanvas.width = litCanvas.offsetWidth * window.devicePixelRatio || 900;
+  const H = litCanvas.height = Math.round(W * 0.56);
+  litCanvas.style.height = (H / window.devicePixelRatio) + 'px';
+  litCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  const DW = W / window.devicePixelRatio;
+  const DH = H / window.devicePixelRatio;
+
+  litCtx.clearRect(0, 0, DW, DH);
+  litCtx.fillStyle = '#12121a';
+  litCtx.fillRect(0, 0, DW, DH);
+
+  const pos = {};
+  LIT_NODES.forEach(n => { pos[n.id] = { x: n.x * DW, y: n.y * DH }; });
+
+  // Draw edges
+  LIT_EDGES.forEach(e => {
+    const a = pos[e.from], b = pos[e.to];
+    if (!a || !b) return;
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const len = Math.sqrt(dx*dx + dy*dy);
+    const ux = dx/len, uy = dy/len;
+    const nodeR = 32;
+    const sx = a.x + ux*nodeR, sy = a.y + uy*nodeR;
+    const ex = b.x - ux*nodeR, ey = b.y - uy*nodeR;
+
+    litCtx.beginPath();
+    litCtx.moveTo(sx, sy);
+    litCtx.lineTo(ex, ey);
+    litCtx.strokeStyle = 'rgba(160,160,255,0.2)';
+    litCtx.lineWidth = 1.5;
+    litCtx.stroke();
+
+    // arrowhead at end
+    const angle = Math.atan2(ey - sy, ex - sx);
+    litCtx.beginPath();
+    litCtx.moveTo(ex, ey);
+    litCtx.lineTo(ex - 10*Math.cos(angle-0.4), ey - 10*Math.sin(angle-0.4));
+    litCtx.lineTo(ex - 10*Math.cos(angle+0.4), ey - 10*Math.sin(angle+0.4));
+    litCtx.closePath();
+    litCtx.fillStyle = 'rgba(160,160,255,0.4)';
+    litCtx.fill();
+
+    if (e.bi) {
+      litCtx.beginPath();
+      litCtx.moveTo(sx, sy);
+      litCtx.lineTo(sx + 10*Math.cos(angle+Math.PI-0.4), sy + 10*Math.sin(angle+Math.PI-0.4));
+      litCtx.lineTo(sx + 10*Math.cos(angle+Math.PI+0.4), sy + 10*Math.sin(angle+Math.PI+0.4));
+      litCtx.closePath();
+      litCtx.fillStyle = 'rgba(160,160,255,0.4)';
+      litCtx.fill();
+    }
+
+    // year label at midpoint
+    const mx = (sx+ex)/2, my = (sy+ey)/2;
+    litCtx.fillStyle = 'rgba(96,96,160,0.8)';
+    litCtx.font = `${Math.round(DW*0.013)}px DM Mono`;
+    litCtx.textAlign = 'center';
+    litCtx.fillText(e.year, mx, my);
+  });
+
+  // Draw nodes
+  LIT_NODES.forEach(n => {
+    const {x, y} = pos[n.id];
+    litCtx.beginPath();
+    litCtx.arc(x, y, 32, 0, Math.PI*2);
+    litCtx.fillStyle = n.color + '18';
+    litCtx.fill();
+    litCtx.strokeStyle = n.color;
+    litCtx.lineWidth = 1.5;
+    litCtx.stroke();
+    litCtx.fillStyle = n.color;
+    litCtx.font = `bold ${Math.round(DW*0.016)}px DM Sans`;
+    litCtx.textAlign = 'center';
+    litCtx.textBaseline = 'middle';
+    litCtx.fillText(n.label, x, y);
+  });
+}
+
+// Hover interaction
+litCanvas.addEventListener('mousemove', e => {
+  const rect = litCanvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left);
+  const my = (e.clientY - rect.top);
+  const DW = litCanvas.offsetWidth, DH = litCanvas.offsetHeight;
+
+  // Check edge hover
+  let found = null;
+  LIT_EDGES.forEach(edge => {
+    const a = { x: LIT_NODES.find(n=>n.id===edge.from).x * DW, y: LIT_NODES.find(n=>n.id===edge.from).y * DH };
+    const b = { x: LIT_NODES.find(n=>n.id===edge.to).x * DW,   y: LIT_NODES.find(n=>n.id===edge.to).y * DH };
+    if (!a || !b) return;
+    // Distance from point to line segment
+    const dx=b.x-a.x, dy=b.y-a.y, len2=dx*dx+dy*dy;
+    const t = Math.max(0,Math.min(1,((mx-a.x)*dx+(my-a.y)*dy)/len2));
+    const nearX=a.x+t*dx, nearY=a.y+t*dy;
+    const dist=Math.sqrt((mx-nearX)**2+(my-nearY)**2);
+    if(dist < 12) found = edge;
+  });
+
+  if(found) {
+    litTip.style.display='block';
+    litTip.style.left = (e.clientX - litCanvas.getBoundingClientRect().left + 12)+'px';
+    litTip.style.top  = (e.clientY - litCanvas.getBoundingClientRect().top - 20)+'px';
+    litTip.innerHTML = `<strong style="color:#e8e8f0">${found.from.charAt(0).toUpperCase()+found.from.slice(1)} ↔ ${found.to.charAt(0).toUpperCase()+found.to.slice(1)}</strong><br>${found.desc}`;
+  } else {
+    litTip.style.display='none';
+  }
+});
+litCanvas.addEventListener('mouseleave', () => litTip.style.display='none');
+
+function initLitMap() {
+  litCanvas.width = litCanvas.offsetParent?.offsetWidth || 900;
+  drawLitMap();
+}
+setTimeout(initLitMap, 100);
+window.addEventListener('resize', drawLitMap);
+
+
+// ══════════════════════════════════════════════
+// CONCEPTS
+// ══════════════════════════════════════════════
+const CONCEPTS = [
+  { term:'Patent Thicket', abbr:'', color:'#a0c8ff',
+    body:'A dense web of overlapping patent rights that a company must navigate in order to commercialise new technology. The term was coined by economist Carl Shapiro (2001). In a thicket, any single product may implicate hundreds of patents held by dozens of parties — making market entry prohibitively expensive for new entrants.' },
+  { term:'SEP', abbr:'Standard-Essential Patent', color:'#40d080',
+    body:'A patent that covers technology which is essential to implementing an industry standard (e.g. 4G LTE, 5G NR, Wi-Fi 802.11, Bluetooth). If a standard cannot be implemented without infringing the patent, it is "essential." SEP holders are required to license on FRAND terms to prevent hold-up.' },
+  { term:'FRAND', abbr:'Fair, Reasonable & Non-Discriminatory', color:'#e84040',
+    body:'The licensing commitment SEP holders must make to standard-setting organisations (SSOs). They agree to license their SEPs to any implementer on terms that are fair, reasonable, and non-discriminatory. Disputes over what "fair" means — especially whether royalties should be based on the chip price or the end device price — have generated billions in litigation.' },
+  { term:'Royalty Stack', abbr:'Royalty Stacking / Double Marginalisation', color:'#ff8c40',
+    body:'When a product requires licenses from multiple independent patent holders, each charging a royalty, the total ("stacked") royalty burden can exceed what any single licensor could extract alone. Estimates suggest smartphone royalty stacks can reach 9–10% of device price. Each licensee ignores the burden they impose on others — a classic externality problem.' },
+  { term:'PAE', abbr:'Patent Assertion Entity', color:'#c040ff',
+    body:'Also called "patent trolls" — entities that acquire patents not to use them productively, but solely to assert them in litigation or extract licensing fees. PAEs contributed to over 60% of US patent lawsuits by 2012. They thicken the thicket without contributing to innovation, exploiting the high cost of defending patent suits.' },
+  { term:'Hold-Up', abbr:'Patent Hold-Up Problem', color:'#f0d060',
+    body:'Occurs when a patent holder asserts an SEP after an industry standard is adopted, at which point all implementers are "locked in" — switching to a non-infringing alternative is not feasible. The hold-up problem allows SEP holders to demand royalties far above FRAND rates, because the cost of non-compliance (losing access to the standard) is prohibitive.' },
+  { term:'Patent Pool', abbr:'Collective Licensing Vehicle', color:'#60d0d0',
+    body:'A consortium of patent holders who aggregate their patents and license them collectively to implementers — reducing transaction costs and eliminating royalty stacking. Examples: MPEG LA (MPEG video codecs), Via Licensing (audio codecs), Avanci (IoT/5G). Patent pools are one of the primary policy solutions proposed to thin out patent thickets.' },
+  { term:'ITC', abbr:'International Trade Commission', color:'#80ff80',
+    body:'A US quasi-judicial federal agency that can issue exclusion orders blocking the import of products found to infringe US patents. During the smartphone wars, ITC complaints were used as aggressive weapons — an import ban is more commercially devastating than a damages award, making the ITC the forum of choice for companies seeking leverage in licensing negotiations.' },
+  { term:'Design Patent', abbr:'vs. Utility Patent', color:'#ff60a0',
+    body:'A design patent protects the ornamental appearance of an object (shape, surface ornamentation). In Apple v. Samsung, Apple\'s design patents — covering the rounded-rectangle shape of the iPhone — were central to the $1B verdict. The US Supreme Court in 2016 clarified that damages for design patent infringement should not automatically be calculated on the entire product value.' },
+];
+
+const cgEl = document.getElementById('conceptsGrid');
+CONCEPTS.forEach(c => {
+  const card = document.createElement('div');
+  card.className = 'concept-card';
+  card.style.borderTop = `3px solid ${c.color}`;
+  card.innerHTML = `
+    <div class="concept-head">
+      <div>
+        <div class="concept-term" style="color:${c.color}">${c.term}</div>
+        ${c.abbr ? `<div class="concept-abbr">${c.abbr}</div>` : ''}
+      </div>
+      <div class="concept-chevron">▼</div>
+    </div>
+    <div class="concept-body">${c.body}</div>
+  `;
+  card.querySelector('.concept-head').addEventListener('click', () => {
+    card.classList.toggle('open');
+  });
+  cgEl.appendChild(card);
+});
+
+
+// ══════════════════════════════════════════════
+// SOURCES
+// ══════════════════════════════════════════════
+const SOURCES = [
+  { primary:true,  title:'Apple Inc. v. Samsung Electronics Co., Ltd. — 920 F.Supp.2d 1079 (N.D. Cal. 2013)',
+    meta:'US District Court, N.D. California (Judge Lucy H. Koh) · Jury verdict: Samsung infringed Apple design & utility patents; $1.049B damages awarded Aug 2012; subsequently reduced on appeal · leagle.com/decision/infdco20130131a04' },
+  { primary:true,  title:'Apple Inc. v. Samsung Electronics Co. — 678 F.3d 1314 (Fed. Cir. 2012)',
+    meta:'United States Court of Appeals for the Federal Circuit · Preliminary injunction appeal; Federal Circuit affirmed in part, vacated in part on design patent validity analysis · law.justia.com/cases/federal/appellate-courts/cafc/12-1105' },
+  { primary:true,  title:'Federal Trade Commission v. Qualcomm Inc. — 969 F.3d 974 (9th Cir. 2020)',
+    meta:'United States Court of Appeals, Ninth Circuit (Filed Aug 11 2020) · Reversed district court; held Qualcomm\'s "no license, no chips" policy and OEM-only SEP licensing did not violate Sherman Act §§1 & 2 · cdn.ca9.uscourts.gov/datastore/opinions/2020/08/11/19-16122.pdf' },
+  { primary:true,  title:'Smartphone Patent Wars — Wikipedia (continuously updated)',           meta:'en.wikipedia.org/wiki/Smartphone_patent_wars · Comprehensive chronological litigation log' },
+  { primary:true,  title:'Apple Inc. v. Samsung Electronics Co. — Wikipedia',                   meta:'en.wikipedia.org/wiki/Apple_Inc._v._Samsung_Electronics_Co. · Full case history, verdicts, appeals' },
+  { primary:true,  title:'FTC v. Qualcomm — Wikipedia',                                         meta:'en.wikipedia.org/wiki/FTC_v._Qualcomm · District court ruling, 9th Circuit reversal, FTC dismissal' },
+  { primary:true,  title:'Qualcomm–Apple Global Settlement Press Release',                       meta:'Cravath, Swaine & Moore LLP (Apr 16 2019) · jonesday.com; cravath.com · $4.5B payment, 6-year license' },
+  { primary:false, title:'A Roadmap to the Smartphone Patent Wars and FRAND Licensing',          meta:'Carrier (2012), ResearchGate · FRAND framework, SSO obligations, court jurisdictions' },
+  { primary:false, title:'Lessons from the Smartphone Wars: Patent Litigants, Patent Quality, and Software', meta:'Ronald A. Cass, 16 Minn. J.L. Sci. & Tech. 1 (2015) · scholarship.law.umn.edu' },
+  { primary:false, title:'Mobile Patent Wars — Mintz (Morrison & Foerster LLP)',                 meta:'CalBar New Matter (2018) · mintz.com · Detailed litigation map 2009–2012' },
+  { primary:true,  title:'Qualcomm Patent Portfolio Disclosure (UK CMA Submission)',             meta:'Qualcomm Inc. · ~140,000 patents; 65,000 cellular SEPs disclosed · qualcomm.com' },
+  { primary:false, title:'LexisNexis / IAM 5G Patent Asset Index',                              meta:'LexisNexis PatentSight (Jan 2025) · Qualcomm #1 by 5G patent quality; Huawei, Ericsson #2, #3 by count' },
+  { primary:true,  title:'Knowles Corporation — Patent Marking Page',                            meta:'ir.knowles.com · US9,743,191; US10,178,478 (MEMS mic); US9,343,455 (ASIC)' },
+  { primary:false, title:'MEMS Microphone Market & IP Landscape — Yole Intelligence',            meta:'Yole Group (2023) · Goermicro overtook Knowles in unit share 2021 · yolegroup.com' },
+  { primary:true,  title:'ITC Ruling: GoerTek v. Knowles (337-TA-1143)',                        meta:'US International Trade Commission (2020) · Three Knowles patents found infringed' },
+  { primary:false, title:'Cirrus Logic Investor Backgrounder / Annual Report FY2025',            meta:'Cirrus Logic Inc. · 89% Apple revenue; ~4,260 patents · investor.cirrus.com' },
+  { primary:false, title:'InvenSense MotionTracking — Product Brief & Patent Filings',           meta:'TDK / InvenSense (2016) · US7,907,838; US8,351,773 · invensense.tdk.com' },
+  { primary:false, title:'ARM Holdings — Business Model and Licensing Overview',                 meta:'Wikipedia: ARM Holdings · 95% smartphone chip share (2012); 1,000+ licensees · arm.com' },
+  { primary:false, title:'NXP Semiconductors — IP & Licensing Overview',                        meta:'GreyB IP Analysis; NXP Wikipedia · Co-inventor of NFC with Sony · nxp.com' },
+  { primary:false, title:'Caltech / JPL Active Pixel Sensor — NASA Spinoff (2017)',              meta:'spinoff.nasa.gov · Foundational CMOS APS patents; Caltech licenses to Sony, Samsung' },
+  { primary:false, title:'Synaptics — Under-Display Fingerprint Sensor History',                meta:'Biometrics.mainguet.org; Synaptics Wikipedia · Vivo first OEM (Jan 2018) · synaptics.com' },
+  { primary:false, title:'Nokia Drags the World Back to Patent War — Copperpod IP',              meta:'copperpod.medium.com (Dec 2024) · Nokia v. Apple chronology; Nokia v. OPPO 5G era' },
+  { primary:false, title:'9th Circuit Reverses FTC v. Qualcomm — National Law Review',           meta:'natlawreview.com (Aug 2020) · Full appellate analysis; antitrust duty to license SEPs' },
+];
+
+const slEl = document.getElementById('sourcesList');
+SOURCES.forEach((s, i) => {
+  const div = document.createElement('div');
+  div.className = 'source-item';
+  div.innerHTML = `
+    <div class="source-num">[${String(i+1).padStart(2,'0')}]</div>
+    <div>
+      <div class="source-title">${s.title}</div>
+      <div class="source-meta">${s.meta}</div>
+    </div>
+    ${s.primary ? '<div class="source-badge">★ PRIMARY</div>' : '<div></div>'}
+  `;
+  slEl.appendChild(div);
+});
+</script>
+</body>
+</html>
